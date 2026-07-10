@@ -1,0 +1,17 @@
+# virtual environment
+.venv/
+
+# database
+workpilot.db
+*.db
+
+# python bytecode
+*.pyc
+__pycache__/
+
+# DB migrations
+alembic/
+alembic.ini
+
+# app configurations (secret key, etc.)
+config.py
