@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WorkPilot — Login</title>
+  <style>
+    :root {
+      --blue: #1d4fd7;
+      --blue-dark: #1741b6;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --bg: #f1f5f9;
+      --error: #dc2626;
+      --success: #16a34a;
+      --radius: 10px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      color: var(--text);
+    }
+
+    .card {
+      background: #ffffff;
+      width: 100%;
+      max-width: 380px;
+      border-radius: 16px;
+      padding: 36px 32px 28px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+    }
+
+    /* Logo badge */
+    .logo {
+      width: 48px;
+      height: 48px;
+      background: var(--blue);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 18px;
+    }
+    .logo svg { width: 24px; height: 24px; }
+
+    .title {
+      text-align: center;
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 26px;
+    }
+
+    /* Form fields */
+    .field { margin-bottom: 18px; }
+
+    .label-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .forgot {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--blue);
+      text-decoration: none;
+    }
+    .forgot:hover { text-decoration: underline; }
+
+    .input-wrap { position: relative; }
+
+    input[type="email"],
+    input[type="password"],
+    input[type="text"].pw {
+      width: 100%;
+      padding: 11px 14px;
+      font-size: 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      color: var(--text);
+    }
+
+    input::placeholder { color: #94a3b8; }
+
+    input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(29, 79, 215, 0.12);
+    }
+
+    /* Validation states */
+    .field.invalid input {
+      border-color: var(--error);
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.08);
+    }
+    .field.valid input {
+      border-color: var(--success);
+    }
+
+    .error-msg {
+      display: none;
+      font-size: 12px;
+      color: var(--error);
+      margin-top: 5px;
+    }
+    .field.invalid .error-msg { display: block; }
+
+    /* Password eye toggle */
+    .toggle-pw {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #94a3b8;
+      display: flex;
+      align-items: center;
+      padding: 2px;
+    }
+    .toggle-pw:hover { color: var(--muted); }
+    .toggle-pw svg { width: 18px; height: 18px; }
+
+    .input-wrap input.pw,
+    .input-wrap input[type="password"] { padding-right: 42px; }
+
+    /* Checkbox */
+    .remember {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 2px 0 20px;
+      font-size: 13px;
+      color: var(--muted);
+      cursor: pointer;
+      user-select: none;
+    }
+    .remember input {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--blue);
+      cursor: pointer;
+    }
+
+    /* Login button */
+    .btn-login {
+      width: 100%;
+      background: var(--blue);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      padding: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.15s;
+    }
+    .btn-login:hover { background: var(--blue-dark); }
+    .btn-login:focus-visible { outline: 3px solid rgba(29, 79, 215, 0.35); outline-offset: 2px; }
+
+    /* Divider */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 22px 0;
+      color: #94a3b8;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+    }
+    .divider::before,
+    .divider::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .register {
+      text-align: center;
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 20px;
+    }
+    .register a {
+      color: var(--blue);
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .register a:hover { text-decoration: underline; }
+
+    @media (max-width: 420px) {
+      .card { padding: 28px 20px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <main class="card">
+    <!-- Logo -->
+    <div class="logo" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="16 3 21 3 21 8"></polyline>
+        <line x1="4" y1="20" x2="21" y2="3"></line>
+        <polyline points="21 16 21 21 16 21"></polyline>
+        <line x1="15" y1="15" x2="21" y2="21"></line>
+        <line x1="4" y1="4" x2="9" y2="9"></line>
+      </svg>
+    </div>
+
+    <h1 class="title">Welcome Back</h1>
+    <p class="subtitle">Enter your credentials to access WorkPilot</p>
+
+    <form id="loginForm" action="/login" method="post" novalidate>
+      <!-- Email -->
+      <div class="field" id="emailField">
+        <div class="label-row">
+          <label for="email">Email Address</label>
+        </div>
+        <div class="input-wrap">
+          <input
+            type="email"
+            id="email"
+            name="email"
+            placeholder="example@gmail.com"
+            autocomplete="email"
+            required
+          />
+        </div>
+        <p class="error-msg" id="emailError">Please enter a valid email address.</p>
+      </div>
+
+      <!-- Password -->
+      <div class="field" id="passwordField">
+        <div class="label-row">
+          <label for="password">Password</label>
+          <a href="#" class="forgot">Forgot Password?</a>
+        </div>
+        <div class="input-wrap">
+          <input
+            type="password"
+            id="password"
+            name="password"
+            class="pw"
+            placeholder="••••••••"
+            autocomplete="current-password"
+            minlength="8"
+            required
+          />
+          <button type="button" class="toggle-pw" id="togglePw" aria-label="Show password">
+            <!-- eye icon -->
+            <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+          </button>
+        </div>
+        <p class="error-msg" id="passwordError">Password must be at least 8 characters.</p>
+      </div>
+
+      <!-- Submit -->
+      <button type="submit" class="btn-login">
+        Login
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+          <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+      </button>
+    </form>
+
+    <p class="register">Don't have an account? <a href="/register">Register</a></p>
+  </main>
+
+  <script>
+    const form = document.getElementById("loginForm");
+    const email = document.getElementById("email");
+    const password = document.getElementById("password");
+    const emailField = document.getElementById("emailField");
+    const passwordField = document.getElementById("passwordField");
+    const emailError = document.getElementById("emailError");
+    const passwordError = document.getElementById("passwordError");
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+    function validateEmail() {
+      const value = email.value.trim();
+      if (value === "") {
+        emailError.textContent = "Email address is required.";
+        setState(emailField, false);
+        return false;
+      }
+      if (!emailRegex.test(value)) {
+        emailError.textContent = "Please enter a valid email address.";
+        setState(emailField, false);
+        return false;
+      }
+      setState(emailField, true);
+      return true;
+    }
+
+    function validatePassword() {
+      const value = password.value;
+      if (value === "") {
+        passwordError.textContent = "Password is required.";
+        setState(passwordField, false);
+        return false;
+      }
+      if (value.length < 6) {
+        passwordError.textContent = "Password must be at least 6 characters.";
+        setState(passwordField, false);
+        return false;
+      }
+      setState(passwordField, true);
+      return true;
+    }
+
+    function setState(field, isValid) {
+      field.classList.toggle("invalid", !isValid);
+      field.classList.toggle("valid", isValid);
+    }
+
+    // Validate live once the user has interacted with a field
+    email.addEventListener("blur", validateEmail);
+    password.addEventListener("blur", validatePassword);
+    email.addEventListener("input", () => {
+      if (emailField.classList.contains("invalid")) validateEmail();
+    });
+    password.addEventListener("input", () => {
+      if (passwordField.classList.contains("invalid")) validatePassword();
+    });
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const okEmail = validateEmail();
+      const okPassword = validatePassword();
+      if (okEmail && okPassword) {
+        form.submit();
+    }
+    });
+
+    // Show / hide password
+    const togglePw = document.getElementById("togglePw");
+    togglePw.addEventListener("click", () => {
+      const showing = password.type === "text";
+      password.type = showing ? "password" : "text";
+      togglePw.setAttribute("aria-label", showing ? "Show password" : "Hide password");
+    });
+  </script>
+</body>
+</html>

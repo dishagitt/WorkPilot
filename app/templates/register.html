@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ProjectHub — Register</title>
+  <style>
+    :root {
+      --blue: #1d4fd7;
+      --blue-dark: #1741b6;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #cbd5e1;
+      --bg: #eef2f7;
+      --error: #dc2626;
+      --success: #16a34a;
+      --radius: 10px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 20px;
+      color: var(--text);
+    }
+
+    .wrapper {
+      width: 100%;
+      max-width: 380px;
+    }
+
+    /* Header above the card */
+    .logo {
+      width: 48px;
+      height: 48px;
+      background: var(--blue);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+    }
+    .logo svg { width: 24px; height: 24px; }
+
+    .title {
+      text-align: center;
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    /* Card */
+    .card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 26px 24px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+    }
+
+    /* Fields */
+    .field { margin-bottom: 16px; }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .input-wrap { position: relative; }
+
+    .input-wrap input {
+      width: 100%;
+      padding: 11px 14px;
+      font-size: 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      color: var(--text);
+      background: #fff;
+    }
+
+    input::placeholder { color: #94a3b8; }
+
+    input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(29, 79, 215, 0.12);
+    }
+
+    /* Inputs that have a leading icon */
+    .input-wrap.has-icon input { padding-left: 40px; }
+
+    .lead-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #64748b;
+      display: flex;
+      align-items: center;
+      pointer-events: none;
+    }
+    .lead-icon svg { width: 17px; height: 17px; }
+
+    /* Eye toggle */
+    .toggle-pw {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #94a3b8;
+      display: flex;
+      align-items: center;
+      padding: 2px;
+    }
+    .toggle-pw:hover { color: var(--muted); }
+    .toggle-pw svg { width: 18px; height: 18px; }
+    .input-wrap.has-toggle input { padding-right: 42px; }
+
+    /* Validation states */
+    .field.invalid input {
+      border-color: var(--error);
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.08);
+    }
+    .field.valid input { border-color: var(--success); }
+
+    .error-msg {
+      display: none;
+      font-size: 12px;
+      color: var(--error);
+      margin-top: 5px;
+    }
+    .field.invalid .error-msg { display: block; }
+
+    /* Terms checkbox */
+    .terms {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin: 4px 0 18px;
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.45;
+      font-weight: 400;
+    }
+    .terms input {
+      width: 16px;
+      height: 16px;
+      margin-top: 2px;
+      accent-color: var(--blue);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .terms a {
+      color: var(--blue);
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .terms a:hover { text-decoration: underline; }
+
+    .terms-field.invalid .error-msg { display: block; }
+    .terms-field .error-msg { margin: -12px 0 14px; }
+
+    /* Register button */
+    .btn-register {
+      width: 100%;
+      background: var(--blue);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      padding: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.15s;
+    }
+    .btn-register:hover { background: var(--blue-dark); }
+    .btn-register:focus-visible { outline: 3px solid rgba(29, 79, 215, 0.35); outline-offset: 2px; }
+
+    .login-link {
+      text-align: center;
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 20px;
+    }
+    .login-link a {
+      color: var(--blue);
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .login-link a:hover { text-decoration: underline; }
+
+    @media (max-width: 420px) {
+      .card { padding: 22px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <main class="wrapper">
+    <!-- Header -->
+    <div class="logo" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="16 3 21 3 21 8"></polyline>
+        <line x1="4" y1="20" x2="21" y2="3"></line>
+        <polyline points="21 16 21 21 16 21"></polyline>
+        <line x1="15" y1="15" x2="21" y2="21"></line>
+        <line x1="4" y1="4" x2="9" y2="9"></line>
+      </svg>
+    </div>
+    <h1 class="title">Join ProjectHub</h1>
+    <p class="subtitle">Precision-engineered project management.</p>
+
+    <!-- Card -->
+    <div class="card">
+      <form id="registerForm" action="/register" method="post" novalidate>
+
+        <!-- First Name -->
+        <div class="field" id="firstNameField">
+          <label for="firstName">First Name</label>
+          <div class="input-wrap">
+            <input type="text" id="firstName" name="first_name" placeholder="Alex" autocomplete="given-name" required minlength="2" />
+          </div>
+          <p class="error-msg" id="firstNameError">First name is required.</p>
+        </div>
+
+        <!-- Last Name -->
+        <div class="field" id="lastNameField">
+          <label for="lastName">Last Name</label>
+          <div class="input-wrap">
+            <input type="text" id="lastName" name="last_name" placeholder="Thompson" autocomplete="family-name" required minlength="2" />
+          </div>
+          <p class="error-msg" id="lastNameError">Last name is required.</p>
+        </div>
+
+        <!-- Email -->
+        <div class="field" id="emailField">
+          <label for="email">Email Address</label>
+          <div class="input-wrap has-icon">
+            <span class="lead-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+                <path d="m22 7-10 6L2 7"></path>
+              </svg>
+            </span>
+            <input type="email" id="email" name="email" placeholder="alex@company.com" autocomplete="email" required />
+          </div>
+          <p class="error-msg" id="emailError">Please enter a valid email address.</p>
+        </div>
+
+        <!-- Password -->
+        <div class="field" id="passwordField">
+          <label for="password">Password</label>
+          <div class="input-wrap has-icon has-toggle">
+            <span class="lead-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+            </span>
+            <input type="password" id="password" name="password" placeholder="••••••••" autocomplete="new-password" minlength="8" required />
+            <button type="button" class="toggle-pw" id="togglePw" aria-label="Show password">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            </button>
+          </div>
+          <p class="error-msg" id="passwordError">Password must be at least 8 characters.</p>
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="field" id="confirmField">
+          <label for="confirmPassword">Confirm Password</label>
+          <div class="input-wrap has-icon">
+            <span class="lead-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path>
+                <path d="M3 3v5h5"></path>
+              </svg>
+            </span>
+            <input type="password" id="confirmPassword" name="confirm_password" placeholder="••••••••" autocomplete="new-password" required />
+          </div>
+          <p class="error-msg" id="confirmError">Passwords do not match.</p>
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" class="btn-register">
+          Register
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </button>
+      </form>
+
+      <p class="login-link">Already have an account? <a href="login.html">Login</a></p>
+    </div>
+  </main>
+
+  <script>
+    const form = document.getElementById("registerForm");
+
+    const firstName = document.getElementById("firstName");
+    const lastName = document.getElementById("lastName");
+    const email = document.getElementById("email");
+    const password = document.getElementById("password");
+    const confirmPassword = document.getElementById("confirmPassword");
+    const terms = document.getElementById("terms");
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+    const nameRegex = /^[A-Za-z][A-Za-z\s'-]*$/;
+
+    function setState(fieldId, isValid) {
+      const field = document.getElementById(fieldId);
+      field.classList.toggle("invalid", !isValid);
+      field.classList.toggle("valid", isValid);
+    }
+
+    function validateName(input, fieldId, errorId, labelText) {
+      const errorEl = document.getElementById(errorId);
+      const value = input.value.trim();
+      if (value === "") {
+        errorEl.textContent = labelText + " is required.";
+        setState(fieldId, false);
+        return false;
+      }
+      if (value.length < 3) {
+        errorEl.textContent = labelText + " must be at least 3 characters.";
+        setState(fieldId, false);
+        return false;
+      }
+      if (!nameRegex.test(value)) {
+        errorEl.textContent = labelText + " can only contain letters.";
+        setState(fieldId, false);
+        return false;
+      }
+      setState(fieldId, true);
+      return true;
+    }
+
+    function validateEmail() {
+      const errorEl = document.getElementById("emailError");
+      const value = email.value.trim();
+      if (value === "") {
+        errorEl.textContent = "Email address is required.";
+        setState("emailField", false);
+        return false;
+      }
+      if (!emailRegex.test(value)) {
+        errorEl.textContent = "Please enter a valid email address.";
+        setState("emailField", false);
+        return false;
+      }
+      setState("emailField", true);
+      return true;
+    }
+
+    function validatePassword() {
+      const errorEl = document.getElementById("passwordError");
+      const value = password.value;
+      if (value === "") {
+        errorEl.textContent = "Password is required.";
+        setState("passwordField", false);
+        return false;
+      }
+      if (value.length < 6) {
+        errorEl.textContent = "Password must be at least 6 characters.";
+        setState("passwordField", false);
+        return false;
+      }
+      if (!/[A-Za-z]/.test(value) || !/[0-9]/.test(value)) {
+        errorEl.textContent = "Password must contain at least one letter and one number.";
+        setState("passwordField", false);
+        return false;
+      }
+      setState("passwordField", true);
+      return true;
+    }
+
+    function validateConfirm() {
+      const errorEl = document.getElementById("confirmError");
+      const value = confirmPassword.value;
+      if (value === "") {
+        errorEl.textContent = "Please confirm your password.";
+        setState("confirmField", false);
+        return false;
+      }
+      if (value !== password.value) {
+        errorEl.textContent = "Passwords do not match.";
+        setState("confirmField", false);
+        return false;
+      }
+      setState("confirmField", true);
+      return true;
+    }
+
+    function validateTerms() {
+      const field = document.getElementById("termsField");
+      field.classList.toggle("invalid", !terms.checked);
+      return terms.checked;
+    }
+
+    // Validate on blur, then live once a field has erred
+    firstName.addEventListener("blur", () => validateName(firstName, "firstNameField", "firstNameError", "First name"));
+    lastName.addEventListener("blur", () => validateName(lastName, "lastNameField", "lastNameError", "Last name"));
+    email.addEventListener("blur", validateEmail);
+    password.addEventListener("blur", validatePassword);
+    confirmPassword.addEventListener("blur", validateConfirm);
+    terms.addEventListener("change", validateTerms);
+
+    [
+      [firstName, "firstNameField", () => validateName(firstName, "firstNameField", "firstNameError", "First name")],
+      [lastName, "lastNameField", () => validateName(lastName, "lastNameField", "lastNameError", "Last name")],
+      [email, "emailField", validateEmail],
+      [password, "passwordField", validatePassword],
+      [confirmPassword, "confirmField", validateConfirm],
+    ].forEach(([input, fieldId, fn]) => {
+      input.addEventListener("input", () => {
+        if (document.getElementById(fieldId).classList.contains("invalid")) fn();
+      });
+    });
+
+    // Re-check confirm if the main password changes after confirm is filled
+    password.addEventListener("input", () => {
+      if (confirmPassword.value !== "") validateConfirm();
+    });
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const results = [
+        validateName(firstName, "firstNameField", "firstNameError", "First name"),
+        validateName(lastName, "lastNameField", "lastNameError", "Last name"),
+        validateEmail(),
+        validatePassword(),
+        validateConfirm(),
+        validateTerms(),
+      ];
+      if (results.every(Boolean)) {
+        form.submit();
+        document.querySelectorAll(".field, .terms-field").forEach(f => f.classList.remove("valid", "invalid"));
+      } else {
+        const firstInvalid = document.querySelector(".field.invalid input, .terms-field.invalid input");
+        if (firstInvalid) firstInvalid.focus();
+      }
+    });
+
+    // Show / hide password
+    const togglePw = document.getElementById("togglePw");
+    togglePw.addEventListener("click", () => {
+      const showing = password.type === "text";
+      password.type = showing ? "password" : "text";
+      togglePw.setAttribute("aria-label", showing ? "Show password" : "Hide password");
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!--
+    ============================================================
+    BASE LAYOUT — ProManager
+    ------------------------------------------------------------
+    How to use this as the base for every page:
+      1. Copy this file and rename it (dashboard.html, projects.html, ...)
+      2. Change the <title> below
+      3. Move the "active" class in the sidebar to the current page's link
+      4. Put your page content inside <main class="content"> ... </main>
+    ============================================================
+  -->
+
+    <title>
+        {% block title %}
+        PMS
+        {% endblock %}
+    </title>
+
+  <style>
+    :root {
+      /* Sidebar palette — professional deep slate/navy instead of black */
+      --sidebar-bg: #1e293b;        /* slate-800 */
+      --sidebar-bg-hover: #27364b;
+      --sidebar-active-bg: rgba(59, 108, 246, 0.16);
+      --sidebar-border: #2e3d54;
+      --sidebar-text: #94a3b8;      /* muted item text */
+      --sidebar-text-active: #ffffff;
+
+      --blue: #1d4fd7;
+      --blue-light: #4d78f0;
+
+      --text: #0f172a;
+      --muted: #64748b;
+      --bg: #f1f5f9;
+
+      --sidebar-width: 250px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ============ SIDEBAR ============ */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: var(--sidebar-width);
+      height: 100vh;
+      background: var(--sidebar-bg);
+      display: flex;
+      flex-direction: column;
+      padding: 22px 14px;
+      border-right: 1px solid var(--sidebar-border);
+    }
+
+    /* Brand */
+    .brand {
+      padding: 0 10px 20px;
+      border-bottom: 1px solid var(--sidebar-border);
+      margin-bottom: 18px;
+    }
+    .brand-name {
+      font-size: 19px;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: 0.2px;
+    }
+    .brand-edition {
+      font-size: 11px;
+      color: var(--sidebar-text);
+      margin-top: 3px;
+      letter-spacing: 0.3px;
+    }
+
+    /* Nav */
+    .nav {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .nav a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 12px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--sidebar-text);
+      position: relative;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .nav a svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .nav a:hover {
+      background: var(--sidebar-bg-hover);
+      color: #e2e8f0;
+    }
+
+    /* Active item — highlighted with left indicator bar, like the design */
+    .nav a.active {
+      background: var(--sidebar-active-bg);
+      color: var(--sidebar-text-active);
+      font-weight: 600;
+    }
+    .nav a.active::before {
+      content: "";
+      position: absolute;
+      left: -14px;              /* sits on the sidebar's inner edge */
+      top: 50%;
+      transform: translateY(-50%);
+      width: 4px;
+      height: 60%;
+      background: var(--blue-light);
+      border-radius: 0 4px 4px 0;
+    }
+
+    /* Pushes Settings/Help to the bottom */
+    .nav-spacer { flex: 1; }
+
+    .nav-bottom {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      border-top: 1px solid var(--sidebar-border);
+      padding-top: 14px;
+    }
+    .nav-bottom a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 12px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--sidebar-text);
+      transition: background 0.15s, color 0.15s;
+    }
+    .nav-bottom a svg { width: 18px; height: 18px; flex-shrink: 0; }
+    .nav-bottom a:hover {
+      background: var(--sidebar-bg-hover);
+      color: #e2e8f0;
+    }
+
+    /* ============ MAIN CONTENT AREA ============ */
+    .content {
+      margin-left: var(--sidebar-width);
+      min-height: 100vh;
+      padding: 32px 36px;
+    }
+
+    /* Placeholder styles — safe to delete on real pages */
+    .placeholder {
+      border: 2px dashed #cbd5e1;
+      border-radius: 14px;
+      min-height: 70vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      font-size: 15px;
+      text-align: center;
+      padding: 20px;
+    }
+
+    /* ============ RESPONSIVE ============ */
+    @media (max-width: 768px) {
+      :root { --sidebar-width: 68px; }
+
+      /* Collapse to icon-only rail on small screens */
+      .brand { padding: 0 4px 16px; }
+      .brand-name { font-size: 0; }
+      .brand-name::after {
+        content: "P";
+        font-size: 19px;
+        display: block;
+        text-align: center;
+      }
+      .brand-edition { display: none; }
+
+      .nav a span,
+      .nav-bottom a span { display: none; }
+
+      .nav a,
+      .nav-bottom a { justify-content: center; padding: 12px 0; }
+
+      .sidebar { padding: 18px 10px; }
+      .content { padding: 20px 16px; }
+    }
+  </style>
+
+    {% block css %}
+    {% endblock %}
+
+</head>
+<body>
+
+  <!-- ============ SIDEBAR (shared across all pages) ============ -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-name">ProManager</div>
+      <div class="brand-edition">Enterprise Edition</div>
+    </div>
+
+    <ul class="nav">
+      <li>
+        <a href="dashboard.html" class="active">
+          <!-- dashboard grid icon -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+            <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+            <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+            <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+          </svg>
+          <span>Dashboard</span>
+        </a>
+      </li>
+      <li>
+        <a href="workspaces.html">
+          <!-- globe icon -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9"></circle>
+            <path d="M3 12h18"></path>
+            <path d="M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18z"></path>
+          </svg>
+          <span>Workspaces</span>
+        </a>
+      </li>
+      <li>
+        <a href="projects.html">
+          <!-- hierarchy icon -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="9" y="2" width="6" height="6" rx="1"></rect>
+            <rect x="2" y="16" width="6" height="6" rx="1"></rect>
+            <rect x="16" y="16" width="6" height="6" rx="1"></rect>
+            <path d="M12 8v4"></path>
+            <path d="M12 12H5v4"></path>
+            <path d="M12 12h7v4"></path>
+          </svg>
+          <span>Projects</span>
+        </a>
+      </li>
+      <li>
+        <a href="my-tasks.html">
+          <!-- check circle icon -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9"></circle>
+            <path d="m8.5 12 2.5 2.5 5-5"></path>
+          </svg>
+          <span>My Tasks</span>
+        </a>
+      </li>
+      <li>
+        <a href="profile.html">
+          <!-- user icon -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="8" r="4"></circle>
+            <path d="M4 21v-1a7 7 0 0 1 14 0v1"></path>
+          </svg>
+          <span>Profile</span>
+        </a>
+      </li>
+    </ul>
+
+    <div class="nav-spacer"></div>
+
+    <ul class="nav-bottom">
+      <li>
+        <a href="settings.html">
+          <!-- gear icon -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+          <span>Settings</span>
+        </a>
+      </li>
+      <li>
+        <a href="help.html">
+          <!-- help circle icon -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9"></circle>
+            <path d="M9.1 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+          <span>Help</span>
+        </a>
+      </li>
+    </ul>
+  </aside>
+
+  <!-- ============ PAGE CONTENT (replace this per page) ============ -->
+    <main class="content">
+    {% block content %}
+    {% endblock %}
+    </main>
+
+    <div class="script">
+        {% block script %}
+        {% endblock %}
+    </div>
+
+</body>
+</html>
