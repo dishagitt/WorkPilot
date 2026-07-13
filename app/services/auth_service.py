@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from app.database.models.user import User
 from app.database.schemas.user import UserRegister, UserLogin
-from app.services.user import get_user_by_email
+from app.services.user_service import get_user_by_email
 from app.core.security import hash_password, verify_password, create_access_token, create_refresh_token, verify_refresh_token
 from fastapi import HTTPException, status
 

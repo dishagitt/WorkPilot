@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -14,21 +15,27 @@
       4. Put your page content inside <main class="content"> ... </main>
     ============================================================
   -->
-
-    <title>
-        {% block title %}
-        PMS
-        {% endblock %}
-    </title>
+  
+  <title>
+    {% block title %}
+    PMS
+    {% endblock %}
+  </title>
+  
+  <link 
+  rel="stylesheet" 
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
   <style>
     :root {
       /* Sidebar palette — professional deep slate/navy instead of black */
-      --sidebar-bg: #1e293b;        /* slate-800 */
+      --sidebar-bg: #1e293b;
+      /* slate-800 */
       --sidebar-bg-hover: #27364b;
       --sidebar-active-bg: rgba(59, 108, 246, 0.16);
       --sidebar-border: #2e3d54;
-      --sidebar-text: #94a3b8;      /* muted item text */
+      --sidebar-text: #94a3b8;
+      /* muted item text */
       --sidebar-text-active: #ffffff;
 
       --blue: #1d4fd7;
@@ -41,7 +48,11 @@
       --sidebar-width: 250px;
     }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
     body {
       font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif;
@@ -70,12 +81,14 @@
       border-bottom: 1px solid var(--sidebar-border);
       margin-bottom: 18px;
     }
+
     .brand-name {
       font-size: 19px;
       font-weight: 700;
       color: #ffffff;
       letter-spacing: 0.2px;
     }
+
     .brand-edition {
       font-size: 11px;
       color: var(--sidebar-text);
@@ -122,10 +135,12 @@
       color: var(--sidebar-text-active);
       font-weight: 600;
     }
+
     .nav a.active::before {
       content: "";
       position: absolute;
-      left: -14px;              /* sits on the sidebar's inner edge */
+      left: -14px;
+      /* sits on the sidebar's inner edge */
       top: 50%;
       transform: translateY(-50%);
       width: 4px;
@@ -135,7 +150,9 @@
     }
 
     /* Pushes Settings/Help to the bottom */
-    .nav-spacer { flex: 1; }
+    .nav-spacer {
+      flex: 1;
+    }
 
     .nav-bottom {
       list-style: none;
@@ -145,6 +162,7 @@
       border-top: 1px solid var(--sidebar-border);
       padding-top: 14px;
     }
+
     .nav-bottom a {
       display: flex;
       align-items: center;
@@ -157,8 +175,42 @@
       color: var(--sidebar-text);
       transition: background 0.15s, color 0.15s;
     }
-    .nav-bottom a svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+    .nav-bottom a svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
     .nav-bottom a:hover {
+      background: var(--sidebar-bg-hover);
+      color: #e2e8f0;
+    }
+
+    .logout-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 12px;
+      border: none;
+      background: transparent;
+      color: var(--sidebar-text);
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: background 0.15s, color 0.15s;
+      text-align: left;
+    }
+
+    .logout-btn svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .logout-btn:hover {
       background: var(--sidebar-bg-hover);
       color: #e2e8f0;
     }
@@ -186,34 +238,56 @@
 
     /* ============ RESPONSIVE ============ */
     @media (max-width: 768px) {
-      :root { --sidebar-width: 68px; }
+      :root {
+        --sidebar-width: 68px;
+      }
 
       /* Collapse to icon-only rail on small screens */
-      .brand { padding: 0 4px 16px; }
-      .brand-name { font-size: 0; }
+      .brand {
+        padding: 0 4px 16px;
+      }
+
+      .brand-name {
+        font-size: 0;
+      }
+
       .brand-name::after {
         content: "P";
         font-size: 19px;
         display: block;
         text-align: center;
       }
-      .brand-edition { display: none; }
+
+      .brand-edition {
+        display: none;
+      }
 
       .nav a span,
-      .nav-bottom a span { display: none; }
+      .nav-bottom a span {
+        display: none;
+      }
 
       .nav a,
-      .nav-bottom a { justify-content: center; padding: 12px 0; }
+      .nav-bottom a {
+        justify-content: center;
+        padding: 12px 0;
+      }
 
-      .sidebar { padding: 18px 10px; }
-      .content { padding: 20px 16px; }
+      .sidebar {
+        padding: 18px 10px;
+      }
+
+      .content {
+        padding: 20px 16px;
+      }
     }
   </style>
 
-    {% block css %}
-    {% endblock %}
+  {% block css %}
+  {% endblock %}
 
 </head>
+
 <body>
 
   <!-- ============ SIDEBAR (shared across all pages) ============ -->
@@ -225,9 +299,10 @@
 
     <ul class="nav">
       <li>
-        <a href="dashboard.html" class="active">
+        <a href="/dashboard" class="{% if request.url.path == '/dashboard' %}active{% endif %}">
           <!-- dashboard grid icon -->
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
             <rect x="3" y="3" width="7" height="7" rx="1"></rect>
             <rect x="14" y="3" width="7" height="7" rx="1"></rect>
             <rect x="3" y="14" width="7" height="7" rx="1"></rect>
@@ -237,9 +312,10 @@
         </a>
       </li>
       <li>
-        <a href="workspaces.html">
+        <a href="/workspaces" class="{% if request.url.path == '/workspaces' %}active{% endif %}">
           <!-- globe icon -->
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
             <circle cx="12" cy="12" r="9"></circle>
             <path d="M3 12h18"></path>
             <path d="M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18z"></path>
@@ -248,9 +324,10 @@
         </a>
       </li>
       <li>
-        <a href="projects.html">
+        <a href="projects.html" class="{% if request.url.path == '/projects' %}active{% endif %}">
           <!-- hierarchy icon -->
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
             <rect x="9" y="2" width="6" height="6" rx="1"></rect>
             <rect x="2" y="16" width="6" height="6" rx="1"></rect>
             <rect x="16" y="16" width="6" height="6" rx="1"></rect>
@@ -262,9 +339,10 @@
         </a>
       </li>
       <li>
-        <a href="my-tasks.html">
+        <a href="my-tasks.html" class="{% if request.url.path == '/tasks' %}active{% endif %}">
           <!-- check circle icon -->
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
             <circle cx="12" cy="12" r="9"></circle>
             <path d="m8.5 12 2.5 2.5 5-5"></path>
           </svg>
@@ -272,9 +350,10 @@
         </a>
       </li>
       <li>
-        <a href="profile.html">
+        <a href="profile.html" class="{% if request.url.path == '/profile' %}active{% endif %}">
           <!-- user icon -->
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
             <circle cx="12" cy="8" r="4"></circle>
             <path d="M4 21v-1a7 7 0 0 1 14 0v1"></path>
           </svg>
@@ -287,39 +366,32 @@
 
     <ul class="nav-bottom">
       <li>
-        <a href="settings.html">
-          <!-- gear icon -->
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="3"></circle>
-            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-          </svg>
-          <span>Settings</span>
-        </a>
-      </li>
-      <li>
-        <a href="help.html">
-          <!-- help circle icon -->
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="9"></circle>
-            <path d="M9.1 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
-            <line x1="12" y1="17" x2="12.01" y2="17"></line>
-          </svg>
-          <span>Help</span>
-        </a>
+        <form action="/logout" method="post" style="margin:0;">
+          <button type="submit" class="logout-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+            <span>Logout</span>
+          </button>
+        </form>
       </li>
     </ul>
   </aside>
 
   <!-- ============ PAGE CONTENT (replace this per page) ============ -->
-    <main class="content">
+  <main class="content">
     {% block content %}
     {% endblock %}
-    </main>
+  </main>
 
-    <div class="script">
-        {% block script %}
-        {% endblock %}
-    </div>
+  <div class="script">
+    {% block script %}
+    {% endblock %}
+  </div>
 
 </body>
+
 </html>

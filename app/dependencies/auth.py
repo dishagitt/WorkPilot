@@ -1,6 +1,6 @@
 from fastapi import Depends, HTTPException, status, Request, Response
 from app.core.security import verify_access_token
-from app.services.user import get_user_by_id
+from app.services.user_service import get_user_by_id
 from app.dependencies.database import get_db
 from sqlalchemy.orm import Session
 from app.services.auth_service import refresh_access_token

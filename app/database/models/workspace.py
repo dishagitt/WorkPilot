@@ -9,7 +9,7 @@ class Workspace(Base):
 	id = Column(Integer, primary_key=True, index=True)
 	name = Column(String(100), nullable=False, unique=True)
 	description = Column(Text, nullable=True)
-	logo_url = Column(String(255), nullable=True)
+	logo_url = Column(String(255), nullable=True, default="/static/workspace_logos/default-workspace.jpg")
 	slug = Column(String(255), unique=True, nullable=False, index=True)
 	created_by= Column(Integer, ForeignKey("users.id"), nullable=False)
 	is_active = Column(Boolean, default=True, nullable=False)
@@ -20,6 +20,12 @@ class Workspace(Base):
 	owner = relationship("User", back_populates="owned_workspaces", foreign_keys=[created_by])
 	projects = relationship("Project", back_populates="workspace", cascade="all, delete-orphan")
 	members = relationship("WorkspaceMember", back_populates="workspace", cascade="all, delete-orphan")
+
+	@property
+	def workspace_owner(self):
+		if self.owner:
+			return f"{self.owner.first_name} {self.owner.last_name}"
+		return ""
 
 
 class WorkspaceMember(Base):

@@ -1,0 +1,436 @@
+{% extends "base.html" %}
+
+{% block title %}Workspaces - ProManager{% endblock %}
+
+{% block css %}
+<style>
+  /* Page Header Styles */
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .header-left h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .header-left p {
+    font-size: 14px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  .header-right {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+
+  /* Search & Filter Elements */
+  .search-container {
+    position: relative;
+  }
+
+  .search-input {
+    width: 240px;
+    padding: 10px 14px 10px 36px;
+    font-size: 14px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background-color: #ffffff;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .search-input:focus {
+    border-color: var(--blue-light);
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    width: 16px;
+    height: 16px;
+  }
+
+  .btn-filter,
+  .btn-primary {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s;
+    text-decoration: none;
+  }
+
+  .btn-filter {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    color: var(--text);
+  }
+
+  .btn-filter:hover {
+    background: #f8fafc;
+  }
+
+  .btn-primary {
+    background: #2563eb;
+    border: none;
+    color: #ffffff;
+  }
+
+  .btn-primary:hover {
+    background: #1d4ed8;
+  }
+
+  /* Grid Layout */
+  .workspaces-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 24px;
+    margin-top: 24px;
+  }
+
+  /* Workspace Card Styles */
+  .workspace-card {
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  }
+
+.btn-edit,
+.btn-delete {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  border-radius: 6px;
+  color: #64748b;
+}
+
+.btn-edit:hover {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.btn-delete:hover {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.card-actions {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  gap: 8px;
+  z-index: 999;
+}
+
+  .card-icon-wrapper {
+    width: 44px;
+    height: 44px;
+    overflow: hidden;
+    border-radius: 8px;
+  }
+
+  .card-icon-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .workspace-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .workspace-owner {
+    font-size: 12px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 20px;
+  }
+
+  .workspace-owner svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* Stats Container */
+  .stats-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .stat-chip {
+    background: #f8fafc;
+    border-radius: 6px;
+    padding: 10px 6px;
+    text-align: center;
+  }
+
+  .stat-value {
+    font-size: 16px;
+    font-weight: 700;
+    color: #2563eb;
+    margin-bottom: 2px;
+  }
+
+  .stat-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .btn-open-workspace {
+    width: 100%;
+    padding: 11px;
+    background: #2563eb;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s;
+    text-align: center;
+    text-decoration: none;
+    margin-top: auto;
+  }
+
+  .btn-open-workspace:hover {
+    background: #1d4ed8;
+  }
+
+  /* "Add New Workspace" Placeholder Card */
+  .add-workspace-card {
+    background: transparent;
+    border: 2px dashed #cbd5e1;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    min-height: 250px;
+  }
+
+  .add-workspace-card:hover {
+    border-color: #94a3b8;
+    background: rgba(255, 255, 255, 0.4);
+  }
+
+  .add-icon-circle {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid #cbd5e1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    margin-bottom: 16px;
+    background: #ffffff;
+  }
+
+  .add-icon-circle svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .add-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .add-desc {
+    font-size: 12px;
+    color: var(--muted);
+    max-width: 200px;
+    line-height: 1.5;
+  }
+
+  /* ============ NO WORKSPACES STATE ============ */
+  /* Hidden by default. Toggle container visibility as needed */
+  .no-workspaces-container {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: 60vh;
+    background: #ffffff;
+    border-radius: 14px;
+    border: 1px solid #e2e8f0;
+    padding: 40px;
+    margin-top: 24px;
+  }
+
+  .no-workspaces-icon {
+    width: 64px;
+    height: 64px;
+    color: #cbd5e1;
+    margin-bottom: 16px;
+  }
+
+  .no-workspaces-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+
+  .no-workspaces-desc {
+    font-size: 14px;
+    color: var(--muted);
+    max-width: 400px;
+    line-height: 1.6;
+    margin-bottom: 24px;
+  }
+
+  /* Utility state-swapping class for testing empty view */
+  .show-empty .workspaces-grid {
+    display: none;
+  }
+
+  .show-empty .no-workspaces-container {
+    display: flex;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="workspaces-wrapper">
+
+  <header class="page-header">
+    <div class="header-left">
+      <h1>Workspaces</h1>
+      <p>Manage your organizational units and collaborative teams.</p>
+    </div>
+
+    <a href="/workspaces/create" class="btn-primary">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+        stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+      </svg>
+      Create Workspace
+    </a>
+</div>
+</header>
+
+<div class="workspaces-grid">
+{% for item in workspaces %}
+
+  <div class="workspace-card">
+
+   <div class="card-actions">
+   {% if item.is_owner %}
+    <a href="/workspaces/edit/{{ item.workspace.id }}" class="btn-edit">
+      <i class="fa-solid fa-pen-to-square"></i>
+    </a>
+
+    <a href="#" class="btn-delete" onclick="deleteProject('{{ item.workspace.id }}'); return false;">
+      <i class="fa-solid fa-trash"></i>
+    </a>
+    {% endif %}
+  </div>
+
+    <div class="card-icon-wrapper">
+      <img src="{{ item.workspace.logo_url }}" alt="{{ item.workspace.name }} Logo" class="workspace-logo">
+    </div>
+    <div class="workspace-title">{{ item.workspace.name }}</div>
+    <div class="workspace-owner">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="8" r="4"></circle>
+        <path d="M4 21v-1a7 7 0 0 1 14 0v1"></path>
+      </svg>
+      Owner: {{item.workspace.workspace_owner }}
+    </div>
+    <div class="stats-container">
+      <div class="stat-chip">
+        <div class="stat-value">{{ item.workspace.total_projects }}</div>
+        <div class="stat-label">Projects</div>
+      </div>
+      <div class="stat-chip">
+        <div class="stat-value">{{ item.workspace.total_members }}</div>
+        <div class="stat-label">Members</div>
+      </div>
+      <div class="stat-chip">
+        <div class="stat-value">{{ item.workspace.total_open_tasks }}</div>
+        <div class="stat-label">Tasks</div>
+      </div>
+    </div>
+    <button class="btn-open-workspace">Open Workspace</button>
+  </div>
+  {% endfor %}
+
+  <div class="no-workspaces-container">
+    <svg class="no-workspaces-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+      <path stroke-linecap="round" stroke-linejoin="round"
+        d="M2.25 13.5h3.86a2.25 2.25 0 0 1 2.008 1.24l.885 1.77a2.25 2.25 0 0 0 2.007 1.24h1.98a2.25 2.25 0 0 0 2.007-1.24l.885-1.77a2.25 2.25 0 0 1 2.007-1.24h3.86m-18 0h18a2.25 2.25 0 0 1 2.25 2.25v4.289a2.25 2.25 0 0 1-2.25 2.25H2.25A2.25 2.25 0 0 1 0 20.29V15.75a2.25 2.25 0 0 1 2.25-2.25Zm0-4.5h18A2.25 2.25 0 0 0 22.5 9V4.461a2.25 2.25 0 0 0-2.25-2.25H2.25A2.25 2.25 0 0 0 0 4.46v4.54a2.25 2.25 0 0 0 2.25 2.25Z" />
+    </svg>
+    <div class="no-workspaces-title">No Workspaces Found</div>
+    <div class="no-workspaces-desc">It looks like you haven't set up any spaces yet. Get started by creating your first
+      workspace to manage tasks smoothly.</div>
+    <a href="/workspaces/create" class="btn-primary">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+      </svg>
+      Create Your First Workspace
+    </a>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+
+    async function deleteProject(id) {
+    if (!confirm("Delete this project?")) return;
+
+    const response = await fetch(`/workspaces/delete/${ id }`, {
+        method: "DELETE"
+    });
+
+    if (response.redirected) {
+        window.location.href = response.url;
+    }
+}
+
+</script>
+{% endblock %}

@@ -32,56 +32,6 @@ WorkPilot — Dashboard
       --sidebar-width: 250px;
     }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-      font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-    }
-
-    .sidebar {
-      position: fixed;
-      top: 0; left: 0;
-      width: var(--sidebar-width);
-      height: 100vh;
-      background: var(--sidebar-bg);
-      display: flex;
-      flex-direction: column;
-      padding: 22px 14px;
-      border-right: 1px solid var(--sidebar-border);
-    }
-
-    .brand { padding: 0 10px 20px; border-bottom: 1px solid var(--sidebar-border); margin-bottom: 18px; }
-    .brand-name { font-size: 19px; font-weight: 700; color: #fff; letter-spacing: 0.2px; }
-    .brand-edition { font-size: 11px; color: var(--sidebar-text); margin-top: 3px; letter-spacing: 0.3px; }
-
-    .nav, .nav-bottom { list-style: none; display: flex; flex-direction: column; gap: 4px; }
-    .nav a, .nav-bottom a {
-      display: flex; align-items: center; gap: 12px;
-      padding: 11px 12px; border-radius: 10px;
-      text-decoration: none; font-size: 14px; font-weight: 500;
-      color: var(--sidebar-text); position: relative;
-      transition: background 0.15s, color 0.15s;
-    }
-    .nav a svg, .nav-bottom a svg { width: 18px; height: 18px; flex-shrink: 0; }
-    .nav a:hover, .nav-bottom a:hover { background: var(--sidebar-bg-hover); color: #e2e8f0; }
-    .nav a.active { background: var(--sidebar-active-bg); color: var(--sidebar-text-active); font-weight: 600; }
-    .nav a.active::before {
-      content: ""; position: absolute; left: -14px; top: 50%;
-      transform: translateY(-50%); width: 4px; height: 60%;
-      background: var(--blue-light); border-radius: 0 4px 4px 0;
-    }
-    .nav-spacer { flex: 1; }
-    .nav-bottom { border-top: 1px solid var(--sidebar-border); padding-top: 14px; }
-
-    .content {
-      margin-left: var(--sidebar-width);
-      min-height: 100vh;
-      padding: 28px 32px 90px;
-    }
-
     /* ============ DASHBOARD ============ */
 
     /* Welcome banner */
@@ -394,15 +344,6 @@ WorkPilot — Dashboard
       .stats { grid-template-columns: repeat(2, 1fr); }
     }
     @media (max-width: 768px) {
-      :root { --sidebar-width: 68px; }
-      .brand { padding: 0 4px 16px; }
-      .brand-name { font-size: 0; }
-      .brand-name::after { content: "P"; font-size: 19px; display: block; text-align: center; }
-      .brand-edition { display: none; }
-      .nav a span, .nav-bottom a span { display: none; }
-      .nav a, .nav-bottom a { justify-content: center; padding: 12px 0; }
-      .sidebar { padding: 18px 10px; }
-      .content { padding: 20px 16px 90px; }
       .projects { grid-template-columns: 1fr; }
     }
     @media (max-width: 560px) {
@@ -414,7 +355,6 @@ WorkPilot — Dashboard
 
 {% block content %}
 
-  <main class="content">
 
     <!-- Welcome banner -->
     <section class="banner">
@@ -608,6 +548,5 @@ WorkPilot — Dashboard
     <!-- Floating action button -->
     <button class="fab" aria-label="Create new">+</button>
 
-  </main>
 
 {% endblock %}
