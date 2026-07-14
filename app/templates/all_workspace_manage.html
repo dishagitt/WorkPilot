@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Create Workspace - ProManager{% endblock %}
+{% block title %}Manage Workspace - ProManager{% endblock %}
 
 {% block css %}
 <style>
@@ -11,20 +11,6 @@
     display: flex;
     flex-direction: column;
     gap: 24px;
-  }
-
-  /* Breadcrumbs */
-  .breadcrumbs {
-    font-size: 12px;
-    color: var(--muted);
-    display: flex;
-    gap: 6px;
-    align-items: center;
-    margin-bottom: -8px;
-  }
-
-  .breadcrumbs span.separator {
-    color: #cbd5e1;
   }
 
   /* Page Header */
@@ -190,25 +176,34 @@
 
   /* Logo File Uploader Card Styles */
   .logo-upload-box {
+    width: 100%;
+    height: 260px;
+    /* Fixed height */
     border: 2px dashed #cbd5e1;
     border-radius: 12px;
-    padding: 32px 16px;
-    text-align: center;
-    position: relative;
-    background: #ffffff;
-    cursor: pointer;
-    transition: border-color 0.15s;
-    margin-bottom: 18px;
-    width: 100%;
-    min-height: 220px;
+    padding: 20px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    overflow: hidden;
+    transition: .2s;
   }
 
   .logo-upload-box:hover {
     border-color: #94a3b8;
+  }
+
+  .current-logo {
+    margin-bottom: 20px;
+  }
+
+  .current-logo img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
   }
 
   /* Styling standard file picker button inside box */
@@ -352,24 +347,94 @@
   .form-control:invalid:focused {
     border-color: #ef4444;
   }
+
+  /* selected logo file */
+  .selected-file {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    gap: 12px;
+  }
+
+  .preview-wrapper {
+    width: 80px;
+    height: 80px;
+    overflow: hidden;
+    border-radius: 10px;
+    border: 1px solid #dbe3ef;
+    flex-shrink: 0;
+  }
+
+  .preview-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+
+  .file-info {
+    width: 100%;
+    max-width: 280px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f8fafc;
+    padding: 10px 12px;
+    border-radius: 8px;
+  }
+
+  #selectedFileName {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .btn-cancel {
+    width: 100%;
+    padding: 14px;
+    text-align: center;
+    text-decoration: none;
+    background: #f1f5f9;
+    color: #475569;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    transition: .2s;
+  }
+
+  .btn-cancel:hover {
+    background: #e2e8f0;
+    color: #1e293b;
+  }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="workspace-container">
 
-  <nav class="breadcrumbs">
-    <span>Workspaces</span>
-    <span class="separator">&rsaquo;</span>
-    <span style="color: #0f172a; font-weight: 500;">Create New</span>
-  </nav>
-
   <header class="page-header">
-    <h1 id="page-title">Create Workspace</h1>
+    <h1 id="page-title">
+      {% if workspace %}
+      Edit Workspace
+      {% else %}
+      Create Workspace
+      {% endif %}
+    </h1>
     <p>Define your team's new collaborative environment and set project parameters.</p>
   </header>
 
-  <form id="workspaceForm" action="" method="POST" enctype="multipart/form-data">
+  <form id="workspaceForm" action="{% if workspace %} 
+                    /workspaces/edit/{{ workspace.id }}
+                {% else %}
+                    /workspaces/create
+                {% endif %}" method="POST" enctype="multipart/form-data">
+
     <div class="form-grid">
 
       <div class="form-card">
@@ -377,13 +442,14 @@
         <div class="form-group">
           <label for="workspaceName">Workspace Name</label>
           <input type="text" id="workspaceName" name="name" class="form-control" placeholder="e.g. Design Systems Team"
-            required maxlength="80">
+            value="{{ workspace.name if workspace else '' }}" required maxlength="80">
         </div>
 
         <div class="form-group">
           <label for="workspaceDesc">Description</label>
           <textarea id="workspaceDesc" name="description" class="form-control"
-            placeholder="What is the primary purpose of this workspace?" maxlength="500"></textarea>
+            placeholder="What is the primary purpose of this workspace?"
+            maxlength="500">{{ workspace.description if workspace else '' }}</textarea>
           <span class="field-hint">Maximum 500 characters. Use this to help team members understand the scope.</span>
         </div>
       </div>
@@ -403,16 +469,28 @@
             <input type="file" id="logoFile" name="logo" class="native-file-input" accept=".svg,.png,.jpg,.jpeg"
               onchange="showSelectedLogo(this); event.stopPropagation();">
 
-            <div class="selected-file" id="selectedFile" style="display:none;">
-              <span id="selectedFileName"></span>
-              <button type="button" class="remove-file-btn" onclick="removeLogo(event)" aria-label="Remove logo">
+            <div class="selected-file" id="selectedFile" style="display:none;" onclick="event.stopPropagation();">
 
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
-                  stroke-linejoin="round">
-                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                  <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-              </button>
+              <div class="preview-wrapper">
+                <img id="logoPreview" src="" alt="Logo Preview"
+                  data-original="{{ workspace.logo_url if workspace else '' }}">
+              </div>
+
+              <div class="file-info">
+                <span id="selectedFileName"></span>
+
+                <button type="button" class="remove-file-btn" id="removeLogoBtn">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                    stroke-linejoin="round">
+
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+
+                  </svg>
+                </button>
+
+              </div>
+
             </div>
 
             <div class="upload-text">
@@ -443,9 +521,17 @@
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
         </svg>
-        <span id="submit-button-text">Create Workspace</span>
+        <span id="submit-button-text">
+          {% if workspace %}
+          Save Changes
+          {% else %}
+          Create Workspace
+          {% endif %}
+        </span>
       </button>
-      <a href="/workspaces" class="btn-cancel">Cancel</a>
+      <a href="/workspaces" class="btn-cancel">
+        Cancel
+      </a>
     </footer>
   </form>
 
@@ -456,54 +542,100 @@
 <script>
 
   function showSelectedLogo(input) {
-    const fileInfo = document.getElementById("selectedFile");
-    const fileName = document.getElementById("selectedFileName");
+    if (!input.files.length)
+      return;
 
-    if (input.files.length) {
-      fileName.textContent = input.files[0].name;
-      fileInfo.style.display = "flex";
+    const file = input.files[0];
+    document.getElementById("selectedFile").style.display = "flex";
+    document.getElementById("selectedFileName").textContent = file.name;
+    document.querySelector(".upload-text").style.display = "none";
+    document.querySelector(".upload-icon-circle").style.display = "none";
+    const preview = document.getElementById("logoPreview");
 
-      input.style.display = "none";
+    if (preview.src.startsWith("blob:")) {
+      URL.revokeObjectURL(preview.src);
     }
+    preview.src = URL.createObjectURL(file);
   }
+
+  document.getElementById("removeLogoBtn").addEventListener("click", removeLogo);
 
   function removeLogo(event) {
+    event.preventDefault();
     event.stopPropagation();
-
     const input = document.getElementById("logoFile");
-    input.value = "";
+    const preview = document.getElementById("logoPreview");
+    const selected = document.getElementById("selectedFile");
 
-    document.getElementById("selectedFile").style.display = "none";
-  }
-
-  // Dynamic page adjustments depending on Edit/Create parameters
-  document.addEventListener("DOMContentLoaded", () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const isEditMode = urlParams.has('edit') || window.location.pathname.includes('edit');
-
-    if (isEditMode) {
-      // Modify text assets to update screen flow cleanly
-      document.getElementById('page-title').innerText = "Edit Workspace";
-      document.getElementById('submit-button-text').innerText = "Save Changes";
-
-      // Example implementation profile fill (Simulated database responses value)
-      document.getElementById('workspaceName').value = "Growth Engine";
-      document.getElementById('workspaceDesc').value = "This environment manages our cross-functional engineering, marketing, and performance automation tasks.";
+    if (preview.src.startsWith("blob:")) {
+      URL.revokeObjectURL(preview.src);
     }
 
-    // Additional Javascript File validation constraints checker
-    const logoInput = document.getElementById('logoFile');
-    logoInput.addEventListener('change', function () {
-      if (this.files && this.files[0]) {
-        const file = this.files[0];
-        const maxFileSize = 5 * 1024 * 1024; // 5 Megabytes
-
-        if (file.size > maxFileSize) {
-          alert("Selected image is too large! Maximum allowed profile constraints size cap is 5MB.");
-          this.value = ''; // Safely reset selection parameters
-        }
+    // If there is an active file selected in the input, clear it first and revert to original
+    if (input.value !== "") {
+      input.value = "";
+      if (preview.dataset.original) {
+        preview.src = preview.dataset.original;
+        document.getElementById("selectedFileName").textContent = "Current Logo";
+        selected.style.display = "flex";
+        return; // Exit here so it doesn't clear the original logo on the first click
       }
-    });
+    }
+
+    // If no new file is selected, or we clicked cancel on the original logo: completely clear it
+    input.value = "";
+    preview.src = "";
+    preview.removeAttribute('data-original'); // Clear original tracker so we can upload fresh
+    selected.style.display = "none";
+    document.querySelector(".upload-text").style.display = "block";
+    document.querySelector(".upload-icon-circle").style.display = "flex";
+  }
+
+  const logoInput = document.getElementById('logoFile');
+  logoInput.addEventListener('change', function () {
+    if (this.files && this.files[0]) {
+      const file = this.files[0];
+      const maxFileSize = 5 * 1024 * 1024; // 5 Megabytes
+
+      if (file.size > maxFileSize) {
+        alert("Selected image is too large! Maximum allowed profile constraints size cap is 5MB.");
+        this.value = ''; // Safely reset selection parameters
+      }
+    }
   });
+
+</script>
+
+{% if workspace and workspace.logo_url %}
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const preview = document.getElementById("logoPreview");
+    preview.src = preview.dataset.original;
+    document.getElementById("selectedFile").style.display = "flex";
+    document.getElementById("selectedFileName").textContent = "Current Logo";
+    document.querySelector(".upload-text").style.display = "none";
+    document.querySelector(".upload-icon-circle").style.display = "none";
+  });
+</script>
+{% endif %}
+
+<script>
+    document.getElementById("workspaceForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+
+        const response = await fetch(this.action, {
+            method: "PATCH",
+            body: formData
+        });
+
+        if (response.redirected) {
+            window.location.href = response.url;
+        } else {
+            const text = await response.text();
+            console.log(text);
+        }
+    });
 </script>
 {% endblock %}

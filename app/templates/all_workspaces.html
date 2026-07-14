@@ -362,7 +362,7 @@
       <i class="fa-solid fa-pen-to-square"></i>
     </a>
 
-    <a href="#" class="btn-delete" onclick="deleteProject('{{ item.workspace.id }}'); return false;">
+    <a href="#" class="btn-delete" onclick="deleteWorkspace('{{ item.workspace.id }}'); return false;">
       <i class="fa-solid fa-trash"></i>
     </a>
     {% endif %}
@@ -420,8 +420,8 @@
 {% block script %}
 <script>
 
-    async function deleteProject(id) {
-    if (!confirm("Delete this project?")) return;
+    async function deleteWorkspace(id) {
+    if (!confirm("Delete this workspace?")) return;
 
     const response = await fetch(`/workspaces/delete/${ id }`, {
         method: "DELETE"

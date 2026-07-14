@@ -8,6 +8,7 @@ from app.database.models.task import Task
 from sqlalchemy import func
 from app.services.user_service import get_user_by_id
 from fastapi import HTTPException, status
+from app.utils.membership import workspace_membership
 
 
 def create_workspace_service(db: Session, data: WorkspaceCreate, current_user_id: int, logo_url: str | None = None):
@@ -43,7 +44,7 @@ def create_workspace_service(db: Session, data: WorkspaceCreate, current_user_id
 
 
 def all_workspaces_list(db: Session):
-    all_workspaces = db.query(Workspace).all()
+    all_workspaces = db.query(Workspace).filter(Workspace.is_active == True).all()
     total_workspace_projcts = projects_count(db)
     total_workspace_members = members_count(db)
     total_workspace_open_tasks = open_tasks_count(db)
@@ -83,28 +84,13 @@ def open_tasks_count(db: Session):
 
 def delete_workspace_service(workspace_id: int, db: Session, current_user_id: int):
 
-    membership = (
-        db.query(WorkspaceMember)
-        .filter(
-            WorkspaceMember.workspace_id == workspace_id,
-            WorkspaceMember.user_id == current_user_id,
-            WorkspaceMember.is_active == True
-        )
-        .first()
-    )
-
-    if not membership:
-        raise HTTPException(
-            status_code=403,
-            detail="You are not a member of this workspace"
-        )
+    membership = workspace_membership(db, workspace_id, current_user_id)
 
     if membership.role != WorkspaceMemberRole.OWNER:
         raise HTTPException(
             status_code=403,
             detail="Only workspace owner can delete workspace"
         )
-
 
     workspace = (
         db.query(Workspace)
@@ -119,7 +105,42 @@ def delete_workspace_service(workspace_id: int, db: Session, current_user_id: in
         )
 
 
-    db.delete(workspace)
+    workspace.is_active = False
     db.commit()
 
     return True
+
+
+def update_workspace_service(workspace_id, db: Session, current_user_id: int, data: WorkspaceUpdate,  logo_url: str | None = None):
+    
+    membership = workspace_membership(db, workspace_id, current_user_id)
+
+    if membership.role != WorkspaceMemberRole.OWNER:
+        raise HTTPException(
+            status_code=403,
+            detail="Only workspace owner can edit workspace"
+        )
+    
+    workspace = (
+        db.query(Workspace)
+        .filter(Workspace.id == workspace_id)
+        .first()
+    )
+
+    if not workspace:
+        raise HTTPException(
+            status_code=404,
+            detail="Workspace not found"
+        )
+
+    # update data
+    if data.name is not None:
+        workspace.name = data.name
+    if data.description is not None:
+        workspace.description = data.description
+    if logo_url is not None:
+        workspace.logo_url = logo_url
+
+    db.commit()
+    db.refresh(workspace)
+    return workspace
