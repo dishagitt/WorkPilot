@@ -1,5 +1,5 @@
 from app.database.models.workspace import Workspace, WorkspaceMember
-from app.database.models.enums import WorkspaceMemberRole
+from app.database.models.enums import UserRole, TaskPhase
 from app.database.schemas.workspace import WorkspaceCreate, WorkspaceUpdate, WorkspaceListResponse
 from sqlalchemy.orm import Session
 from slugify import slugify
@@ -7,11 +7,30 @@ from app.database.models.project import Project
 from app.database.models.task import Task
 from sqlalchemy import func
 from app.services.user_service import get_user_by_id
-from fastapi import HTTPException, status
-from app.utils.membership import workspace_membership
+from fastapi import HTTPException
+from sqlalchemy.exc import IntegrityError
+from app.utils.file_upload import delete_file
 
 
 def create_workspace_service(db: Session, data: WorkspaceCreate, current_user_id: int, logo_url: str | None = None):
+    current_user = get_user_by_id(db, current_user_id)
+
+    if current_user.role != UserRole.ADMIN:
+        raise HTTPException(
+            status_code=403,
+            detail="Only admin can create workspace."
+        )
+    
+    existing = db.query(Workspace).filter(
+        Workspace.name == data.name
+    ).first()
+
+    if existing:
+        raise HTTPException(
+            status_code=409,
+            detail="Workspace name already exists."
+        )
+
     base_slug = slugify(data.name)
     slug = base_slug
 
@@ -28,26 +47,45 @@ def create_workspace_service(db: Session, data: WorkspaceCreate, current_user_id
         slug = slug,
         created_by = current_user_id
     )
+    
     db.add(workspace)
-    db.flush()      # Gets workspace.id without committing
-
-    workspace_member = WorkspaceMember(
-        workspace_id=workspace.id,
-        user_id=current_user_id,
-        role=WorkspaceMemberRole.OWNER
-    )
-    db.add(workspace_member)
-    db.commit()
-    db.refresh(workspace)
+    try:
+        db.commit()
+        db.refresh(workspace)
+    except IntegrityError: 
+        db.rollback()
+        if logo_url:
+            delete_file(logo_url)
+        raise HTTPException(
+            status_code=409,
+            detail="Workspace with this name already exists."
+        )
         
     return workspace
 
 
-def all_workspaces_list(db: Session):
-    all_workspaces = db.query(Workspace).filter(Workspace.is_active == True).all()
-    total_workspace_projcts = projects_count(db)
-    total_workspace_members = members_count(db)
-    total_workspace_open_tasks = open_tasks_count(db)
+def all_workspaces_list(db: Session, current_user_id: int):
+    current_user = get_user_by_id(db, current_user_id)
+
+    # workspace list for admin
+    if current_user.role == UserRole.ADMIN:
+        all_workspaces = db.query(Workspace).filter(Workspace.is_active == True).all()
+        
+    # workspace list for member (workspaces in which user is member)
+    else:
+        all_workspaces = (db.query(Workspace)
+            .join(
+                WorkspaceMember,
+                Workspace.id == WorkspaceMember.workspace_id
+            )
+            .filter(
+                WorkspaceMember.user_id == current_user_id,
+                WorkspaceMember.is_active == True,
+                Workspace.is_active == True
+            )
+            .all()
+        )
+            
     return [
     WorkspaceListResponse(
         id = workspace.id,
@@ -55,9 +93,13 @@ def all_workspaces_list(db: Session):
         workspace_owner = workspace.workspace_owner,
         logo_url = workspace.logo_url,
         slug = workspace.slug,
-        total_projects = total_workspace_projcts,
-        total_members = total_workspace_members,
-        total_open_tasks = total_workspace_open_tasks
+        created_by = current_user_id,
+        # total_projects = projects_count(db, workspace.id),
+        # total_members = members_count(db, workspace.id),
+        # total_open_tasks = open_tasks_count(db, workspace.id)
+        total_projects = 1,
+        total_members = 2,
+        total_open_tasks = 3 
     )
     for workspace in all_workspaces
 ]
@@ -65,31 +107,58 @@ def all_workspaces_list(db: Session):
 
 def get_workspace_by_id(db: Session, workspace_id: int):
     workspace = db.query(Workspace).filter(Workspace.id == workspace_id).first()
+    if not workspace:
+        raise HTTPException(
+            status_code=404,
+            detail="Workspace not found"
+        )
+
     return workspace
 
-def projects_count(db: Session):
-    projects_count = db.query(func.count(Project.id)).scalar()
-    return projects_count
+
+def projects_count(db: Session, workspace_id: int):
+    return (
+        db.query(func.count(Project.id))
+        .filter(
+            Project.workspace_id == workspace_id,
+            Project.is_active == True
+        )
+        .scalar()
+    )
 
 
-def members_count(db: Session):
-    workspace_member_count = db.query(func.count(WorkspaceMember.id)).scalar()
-    return workspace_member_count
+def members_count(db: Session, workspace_id: int):
+    return (
+        db.query(func.count(WorkspaceMember.id))
+        .filter(
+            WorkspaceMember.workspace_id == workspace_id,
+            WorkspaceMember.is_active == True
+        )
+        .scalar()
+    )
 
 
-def open_tasks_count(db: Session):
-    open_task_count = db.query(func.count(Task.id)).filter(Task.phase != "DONE").scalar()
-    return open_task_count
+def open_tasks_count(db: Session, workspace_id: int):
+    return (
+        db.query(func.count(Task.id))
+        .join(Project, Task.project_id == Project.id)
+        .filter(
+            Project.workspace_id == workspace_id,
+            Project.is_active == True,
+            Task.is_deleted == False,
+            Task.phase != TaskPhase.DONE
+        )
+        .scalar()
+    )
 
 
 def delete_workspace_service(workspace_id: int, db: Session, current_user_id: int):
+    current_user = get_user_by_id(db, current_user_id)
 
-    membership = workspace_membership(db, workspace_id, current_user_id)
-
-    if membership.role != WorkspaceMemberRole.OWNER:
+    if current_user.role != UserRole.ADMIN:
         raise HTTPException(
             status_code=403,
-            detail="Only workspace owner can delete workspace"
+            detail="Only admin can delete workspace"
         )
 
     workspace = (
@@ -104,28 +173,23 @@ def delete_workspace_service(workspace_id: int, db: Session, current_user_id: in
             detail="Workspace not found"
         )
 
-
     workspace.is_active = False
     db.commit()
 
-    return True
+    # return True
+    return {"message" : "workspace deleted successfully"} 
 
 
 def update_workspace_service(workspace_id, db: Session, current_user_id: int, data: WorkspaceUpdate,  logo_url: str | None = None):
-    
-    membership = workspace_membership(db, workspace_id, current_user_id)
+    current_user = get_user_by_id(db, current_user_id)
 
-    if membership.role != WorkspaceMemberRole.OWNER:
+    if current_user.role != UserRole.ADMIN:
         raise HTTPException(
             status_code=403,
-            detail="Only workspace owner can edit workspace"
+            detail="Only admin can edit workspace."
         )
     
-    workspace = (
-        db.query(Workspace)
-        .filter(Workspace.id == workspace_id)
-        .first()
-    )
+    workspace = get_workspace_by_id(db, workspace_id)
 
     if not workspace:
         raise HTTPException(

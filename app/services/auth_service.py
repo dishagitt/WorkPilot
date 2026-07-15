@@ -5,7 +5,8 @@ from app.services.user_service import get_user_by_email
 from app.core.security import hash_password, verify_password, create_access_token, create_refresh_token, verify_refresh_token
 from fastapi import HTTPException, status
 
-def register_user(db: Session, user_data: UserRegister):
+def register_user(db: Session, user_data: UserRegister, photo_url: str | None = None):
+    print(photo_url)
     existing_user = get_user_by_email(db, user_data.email)
 
     if existing_user:
@@ -21,8 +22,9 @@ def register_user(db: Session, user_data: UserRegister):
             detail="Password and Confirm Password do not match."
         )
 
-    user = User(**user_data.model_dump(exclude={"password", "confirm_password"}))
+    user = User(**user_data.model_dump(exclude={"password", "confirm_password", "photo_url"}))
     user.password_hash = hash_password(user_data.password)
+    user.photo_url = photo_url
     
     db.add(user)
     db.commit()

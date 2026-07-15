@@ -1,7 +1,7 @@
 from enum import Enum
 
-class WorkspaceMemberRole(Enum):
-    OWNER = "owner"
+class UserRole(Enum):
+    ADMIN = "admin"
     MEMBER = "member"
 
 

@@ -28,8 +28,12 @@ def delete_file(file_url: str):
     if not file_url:
         return
 
-    # Never delete the default logo
-    if file_url == "/static/workspace_logos/default.png":
+    # Never delete the default workspace logo
+    if file_url == "/static/workspace_logos/default-workspace.png":
+        return
+    
+    # Never delete the default profile image
+    if file_url == "/static/profile_photos/default-profile.png":
         return
 
     # Remove leading "/static/"

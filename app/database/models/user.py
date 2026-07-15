@@ -1,7 +1,8 @@
 from app.database.connection import Base
-from sqlalchemy import Column, String, Integer, Boolean, DateTime
+from sqlalchemy import Column, String, Integer, Boolean, DateTime, Enum as SqlEnum
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
+from app.database.models.enums import UserRole
 
 class User(Base):
     __tablename__ = "users"
@@ -9,9 +10,10 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     first_name = Column(String(100), nullable=False)
     last_name = Column(String(100), nullable=False)
+    role = Column(SqlEnum(UserRole), default=UserRole.MEMBER, nullable=False)
     email = Column(String(255), unique=True, nullable=False, index=True)
     password_hash = Column(String(255), nullable=False)
-    photo_url = Column(String(255), nullable=True)
+    photo_url = Column(String(255), nullable=True, default="/static/profile_photos/default-profile.png")
     is_active = Column(Boolean, default=True, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
