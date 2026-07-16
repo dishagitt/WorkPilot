@@ -47,3 +47,8 @@ class ActivityAction(Enum):
 
     ATTACHMENT_ADDED = "attachment_added"
     ATTACHMENT_REMOVED = "attachment_removed"
+
+
+class ProjectStatus(Enum):
+    ACTIVE = "active"
+    ARCHIVED = "archived"

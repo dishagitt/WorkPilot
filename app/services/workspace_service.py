@@ -69,7 +69,7 @@ def all_workspaces_list(db: Session, current_user_id: int):
 
     # workspace list for admin
     if current_user.role == UserRole.ADMIN:
-        all_workspaces = db.query(Workspace).filter(Workspace.is_active == True).all()
+        all_workspaces = db.query(Workspace).filter(Workspace.is_deleted == False).all()
         
     # workspace list for member (workspaces in which user is member)
     else:
@@ -80,8 +80,8 @@ def all_workspaces_list(db: Session, current_user_id: int):
             )
             .filter(
                 WorkspaceMember.user_id == current_user_id,
-                WorkspaceMember.is_active == True,
-                Workspace.is_active == True
+                WorkspaceMember.is_deleted == False,
+                Workspace.is_deleted == False
             )
             .all()
         )
@@ -107,7 +107,7 @@ def all_workspaces_list(db: Session, current_user_id: int):
 
 def get_workspace_by_id(db: Session, workspace_id: int):
     workspace = db.query(Workspace).filter(Workspace.id == workspace_id).first()
-    if not workspace:
+    if not workspace or workspace.is_deleted == True:
         raise HTTPException(
             status_code=404,
             detail="Workspace not found"
@@ -121,7 +121,7 @@ def projects_count(db: Session, workspace_id: int):
         db.query(func.count(Project.id))
         .filter(
             Project.workspace_id == workspace_id,
-            Project.is_active == True
+            Project.is_deleted == False
         )
         .scalar()
     )
@@ -132,7 +132,7 @@ def members_count(db: Session, workspace_id: int):
         db.query(func.count(WorkspaceMember.id))
         .filter(
             WorkspaceMember.workspace_id == workspace_id,
-            WorkspaceMember.is_active == True
+            WorkspaceMember.is_deleted == False
         )
         .scalar()
     )
@@ -144,7 +144,7 @@ def open_tasks_count(db: Session, workspace_id: int):
         .join(Project, Task.project_id == Project.id)
         .filter(
             Project.workspace_id == workspace_id,
-            Project.is_active == True,
+            Project.is_deleted == False,
             Task.is_deleted == False,
             Task.phase != TaskPhase.DONE
         )
@@ -167,13 +167,7 @@ def delete_workspace_service(workspace_id: int, db: Session, current_user_id: in
         .first()
     )
 
-    if not workspace:
-        raise HTTPException(
-            status_code=404,
-            detail="Workspace not found"
-        )
-
-    workspace.is_active = False
+    workspace.is_deleted = True
     db.commit()
 
     # return True
@@ -191,20 +185,15 @@ def update_workspace_service(workspace_id, db: Session, current_user_id: int, da
     
     workspace = get_workspace_by_id(db, workspace_id)
 
-    if not workspace:
-        raise HTTPException(
-            status_code=404,
-            detail="Workspace not found"
-        )
-
     # update data
-    if data.name is not None:
-        workspace.name = data.name
-    if data.description is not None:
-        workspace.description = data.description
-    if logo_url is not None:
-        workspace.logo_url = logo_url
+    if workspace.is_deleted == False:
+        if data.name is not None:
+            workspace.name = data.name
+        if data.description is not None:
+            workspace.description = data.description
+        if logo_url is not None:
+            workspace.logo_url = logo_url
 
-    db.commit()
-    db.refresh(workspace)
-    return workspace
+        db.commit()
+        db.refresh(workspace)
+        return workspace

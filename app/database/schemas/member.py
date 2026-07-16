@@ -2,29 +2,39 @@ from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional
 from fastapi import Form
 from datetime import datetime
-from app.database.models.enums import ProjectMemberRole, UserRole
+from app.database.models.enums import ProjectMemberRole
 
 
 class ProjectMemberCreate(BaseModel):
-    role: ProjectMemberRole = ProjectMemberRole.DEVELOPER
-
-    @classmethod
-    def as_form(
-        cls,
-        role: ProjectMemberRole = Form(ProjectMemberRole.DEVELOPER),
-    ):
-        return cls(role=role)
-
-
-class ProjectMemberRoleUpdate(BaseModel):
+    user_id: int
     role: Optional[ProjectMemberRole] = None
 
     @classmethod
     def as_form(
         cls,
+        user_id: int = Form(...),
+        role: ProjectMemberRole = Form(...),
+    ):
+        return cls(
+            user_id=user_id,
+            role=role
+        )
+
+
+class ProjectMemberRoleUpdate(BaseModel):
+    user_id: int
+    role: ProjectMemberRole = ProjectMemberRole.DEVELOPER
+
+    @classmethod
+    def as_form(
+        cls,
+        user_id: Optional[int] = Form(None),
         role: Optional[ProjectMemberRole] = Form(None),
     ):
-        return cls(role=role)
+        return cls(
+            user_id=user_id,
+            role=role
+        )
 
 
 class ProjectMemberResponse(BaseModel):

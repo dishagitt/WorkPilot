@@ -18,9 +18,14 @@ def get_project(project_id: int, db: Session = Depends(get_db)):
     return ProjectService.get_project_by_id(project_id, db)
 
 
-@router.get("/list/{workspace_id}")
-def project_list(workspace_id: int, db: Session = Depends(get_db), current_user = Depends(get_current_user)):
-    return ProjectService.get_all_projects(db, workspace_id, current_user.id)
+@router.get("/active-projects/{workspace_id}")
+def active_project_list(workspace_id: int, db: Session = Depends(get_db), current_user = Depends(get_current_user)):
+    return ProjectService.get_all_active_projects(db, workspace_id, current_user.id)
+
+
+@router.get("/archived-projects/{workspace_id}")
+def archived_project_list(workspace_id: int, db: Session = Depends(get_db), current_user = Depends(get_current_user)):
+    return ProjectService.get_all_archived_projects(db, workspace_id, current_user.id)
 
 
 @router.patch("/edit/{project_id}", response_model=ProjectResponse)

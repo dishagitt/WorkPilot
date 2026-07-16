@@ -2,17 +2,21 @@ from app.database.connection import Base
 from sqlalchemy import Column, String, Integer, Boolean, DateTime, Text, ForeignKey, Enum as SqlEnum, UniqueConstraint
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
-from app.database.models.enums import ProjectMemberRole
+from app.database.models.enums import ProjectMemberRole, ProjectStatus
 
 class Project(Base):
 	__tablename__ = "projects"
+	__table_args__ = (
+        UniqueConstraint("workspace_id", "name", name="uq_workspace_project_name"),
+    )
 	id = Column(Integer, primary_key=True, index=True)
 	workspace_id= Column(Integer, ForeignKey("workspaces.id"), nullable=False)
 	name = Column(String(100), nullable=False, index=True)
 	key = Column(String(20), unique=True, nullable=False, index=True)
 	description = Column(Text, nullable=True)
 	created_by= Column(Integer, ForeignKey("users.id"), nullable=False)
-	is_active = Column(Boolean, default=True, nullable=False)
+	status = Column(SqlEnum(ProjectStatus), default=ProjectStatus.ACTIVE)
+	is_deleted = Column(Boolean, default=False, nullable=False)
 	created_at = Column(DateTime(timezone=True),  server_default=func.now())
 	updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 	
@@ -31,7 +35,7 @@ class ProjectMember(Base):
 	user_id= Column(Integer, ForeignKey("users.id"), nullable=False) 
 	role = Column(SqlEnum(ProjectMemberRole), default=ProjectMemberRole.DEVELOPER, nullable=False)
 	joined_at = Column(DateTime(timezone=True),  server_default=func.now())
-	is_active = Column(Boolean, default=True, nullable=False)
+	is_deleted = Column(Boolean, default=False, nullable=False)
 	
 	#relationships
 	project = relationship("Project", back_populates="members")
