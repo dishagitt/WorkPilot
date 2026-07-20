@@ -78,3 +78,20 @@ class TaskResponse(BaseModel):
     created_by_name: str
     assigned_to_name: Optional[str] = None
     model_config = ConfigDict(from_attributes=True)
+
+
+class BoardResponse(BaseModel):
+    task_number: str
+    task_type: TaskType
+    title: str
+    priority: TaskPriority
+    due_date: Optional[Date] = None
+    assigned_to_name: Optional[str] = None
+    model_config = ConfigDict(from_attributes=True)
+
+
+class BoardListResponse(BaseModel):
+    to_do: list[BoardResponse]
+    in_development: list[BoardResponse]
+    in_qa: list[BoardResponse]
+    done: list[BoardResponse]

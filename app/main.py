@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.routers import auth, dashboard, workspace, project, member, task, user
+from app.routers import auth, dashboard, workspace, project, member, task, user, board
 from fastapi.staticfiles import StaticFiles
 
 
@@ -12,6 +12,7 @@ app.include_router(workspace.router)
 app.include_router(project.router)
 app.include_router(member.router)
 app.include_router(task.router)
+app.include_router(board.router)
 
 
 app.mount(
