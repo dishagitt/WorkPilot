@@ -3,13 +3,32 @@ import uuid
 import shutil
 from fastapi import UploadFile
 from pathlib import Path
+from fastapi import HTTPException
 
 STATIC_DIR = Path("app/static")
 
 
+allowed_extensions = {
+    "jpg",
+    "jpeg",
+    "png",
+    "pdf",
+    "doc",
+    "docx",
+    "xlsx",
+    "pptx",
+    "zip"
+}
+
 def save_file(upload: UploadFile, folder: str):
 
-    extension = upload.filename.split(".")[-1].lower()
+    extension = Path(upload.filename).suffix.lower().replace(".", "")
+
+    if extension not in allowed_extensions:
+        raise HTTPException(
+            status_code=400,
+            detail="Unsupported file type."
+        )
 
     filename = f"{uuid.uuid4()}.{extension}"
 

@@ -14,7 +14,7 @@ from app.services.workspace_service import (
 )
 from fastapi.responses import RedirectResponse
 from fastapi import UploadFile, File
-from app.utils.file_upload import save_file, delete_file
+from app.utils.file_handler import save_file, delete_file
 from app.database.models.workspace import WorkspaceMember, Workspace
 from app.database.models.enums import UserRole
 

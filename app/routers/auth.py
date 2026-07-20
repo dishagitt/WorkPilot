@@ -6,7 +6,7 @@ from app.services.auth_service import register_user, login_user
 from fastapi.responses import RedirectResponse, HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi import UploadFile, File
-from app.utils.file_upload import save_file, delete_file
+from app.utils.file_handler import save_file, delete_file
 
 
 templates = Jinja2Templates(directory="app/templates")

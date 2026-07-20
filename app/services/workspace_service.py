@@ -9,7 +9,7 @@ from sqlalchemy import func
 from app.services.user_service import get_user_by_id
 from fastapi import HTTPException
 from sqlalchemy.exc import IntegrityError
-from app.utils.file_upload import delete_file
+from app.utils.file_handler import delete_file
 
 
 def create_workspace_service(db: Session, data: WorkspaceCreate, current_user_id: int, logo_url: str | None = None):

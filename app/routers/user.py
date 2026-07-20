@@ -5,7 +5,7 @@ from app.dependencies.database import get_db
 from sqlalchemy.orm import Session
 from app.services.user_service import get_user_by_id, update_user_service, delete_user_service, get_user_list, change_password_service
 from fastapi import UploadFile, File
-from app.utils.file_upload import save_file, delete_file
+from app.utils.file_handler import save_file, delete_file
 
 
 from fastapi.templating import Jinja2Templates

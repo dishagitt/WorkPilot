@@ -5,7 +5,6 @@ from app.database.schemas.comment import CommentCreate, CommentUpdate, CommentRe
 from app.services.user_service import get_user_by_id
 from app.utils.membership import get_accessible_project
 from app.services.task_service import TaskService
-import traceback
 
 
 class CommentService():
@@ -156,9 +155,7 @@ class CommentService():
 
         except Exception:
             db.rollback()
-            # raise HTTPException(
-            #     status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            #     detail="Internal server error."
-            # )
-            traceback.print_exc()
-            raise
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Internal server error."
+            )
