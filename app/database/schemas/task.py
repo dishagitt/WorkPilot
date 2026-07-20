@@ -6,7 +6,7 @@ from app.database.models.enums import TaskPhase, TaskPriority, TaskType
 
 
 class TaskCreate(BaseModel):
-    task_type: TaskType.TASK
+    task_type: TaskType = TaskType.TASK
     title: str = Field(..., min_length=3, max_length=100)
     description: str = Field(..., max_length=500)
     priority: TaskPriority = TaskPriority.MEDIUM 

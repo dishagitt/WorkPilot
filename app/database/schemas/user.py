@@ -27,16 +27,16 @@ class UserRegister(BaseModel):
         )
 
 class UserUpdate(BaseModel):
-    first_name: Optional[str] = None 
-    last_name: Optional[str] = None 
+    first_name: Optional[str] = Field(None, min_length=3, max_length=100)
+    last_name: Optional[str] = Field(None, min_length=3, max_length=100)
     photo_url: Optional[str] = None 
 
     @classmethod
     def as_form(
         cls,
-        first_name: str = Form(...),
-        last_name: str = Form(...),
-        photo_url: str = Form(...)
+        first_name: str = Form(None),
+        last_name: str = Form(None),
+        photo_url: str = Form(None)
     ):
         return cls(
             first_name=first_name,
@@ -67,4 +67,23 @@ class UserLogin(BaseModel):
         return cls(
             email=email,
             password=password
+        )
+    
+
+class ChangePassword(BaseModel):
+    old_password: str = Field(..., min_length=6)
+    new_password: str = Field(..., min_length=6)
+    confirm_password: str = Field(..., min_length=6)
+
+    @classmethod
+    def as_form(
+        cls,
+        old_password: str = Form(...),
+        new_password: str = Form(...),
+        confirm_password: str = Form(...)
+    ):
+        return cls(
+            old_password=old_password,            
+            new_password=new_password,
+            confirm_password=confirm_password
         )

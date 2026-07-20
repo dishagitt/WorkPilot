@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from app.database.models.project import Project, ProjectMember
 from app.database.schemas.project import ProjectCreate, ProjectUpdate
-from app.utils.project_key import generate_project_key
+from app.utils.key_num import generate_project_key
 from app.services.user_service import get_user_by_id
 from fastapi import HTTPException, status
 from app.database.models.enums import UserRole, ProjectStatus
@@ -172,7 +172,7 @@ class ProjectService:
         db.commit()
 
         # return True
-        return {"message" : "project deleted successfully"}
+        return {"message" : "Project deleted successfully"}
     
 
     @staticmethod
@@ -194,5 +194,5 @@ class ProjectService:
 
         db.commit()
 
-        # return 
+        # return project.status
         return {f"message: project status changed to - {project.status}"}
