@@ -22,18 +22,34 @@ def get_user_by_id(db: Session, user_id:int):
 
 
 def get_user_list(db: Session, current_user_id: int):
-    current_user = get_user_by_id(db, current_user_id)
+    try:
+        current_user = get_user_by_id(db, current_user_id)
 
-    # user list for admin
-    if current_user.role == UserRole.ADMIN:
+        # user list for admin
+        if current_user.role != UserRole.ADMIN:
+           raise HTTPException(
+                status_code=403,
+                detail="Forbidden"
+            )
         all_users = (db.query(User).
-                    filter(
-                        User.role != UserRole.ADMIN,
-                        User.is_deleted == False)
-                        .all()
-                    )
+                        filter(
+                            User.role != UserRole.ADMIN,
+                            User.is_deleted == False)
+                            .all()
+                        )
+        
+        return all_users
     
-    return all_users
+    except HTTPException:
+            db.rollback()
+            raise
+
+    except Exception:
+            db.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Internal server error."
+            )
 
 
 def update_user_service(user_id: int, data: UserUpdate, db: Session, current_user_id: int, photo_url: str | None = None):
