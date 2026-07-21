@@ -6,6 +6,8 @@ from sqlalchemy.orm import Session
 from app.services.attachment_service import AttachmentService
 from fastapi import UploadFile, File
 from app.utils.file_handler import save_file
+from fastapi.responses import FileResponse
+
 
 
 router = APIRouter(tags=["Attachment"])
@@ -43,3 +45,15 @@ def get_comment_attachment(comment_id: int, db: Session = Depends(get_db)):
 @router.delete("/attachments/{attachment_id}")
 def delete_attachment(attachment_id: int, db: Session = Depends(get_db), current_user = Depends(get_current_user)):
     return AttachmentService.delete_attachment(attachment_id, db, current_user.id)
+
+
+@router.get("/attachments/{attachment_id}/download")
+def download_attachment(attachment_id: int, db: Session = Depends(get_db), current_user = Depends(get_current_user)):
+
+    file_path, attachment = AttachmentService.download_attachment_service(attachment_id, db, current_user)
+
+    return FileResponse(
+        path=file_path,
+        filename=attachment.file_name,
+        media_type="application/octet-stream",
+    )

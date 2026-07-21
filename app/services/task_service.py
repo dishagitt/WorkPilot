@@ -203,8 +203,8 @@ class TaskService():
 
         except Exception:
             db.rollback()
-            traceback.print_exc()
-            raise
+            back.print_exc()
+            raisetrace
         
     
 

@@ -7,6 +7,10 @@ from app.utils.membership import get_accessible_project
 from app.services.task_service import TaskService
 from app.services.comment_service import CommentService
 from app.utils.file_handler import delete_file
+from app.database.models.user import User
+from pathlib import Path
+
+STATIC_DIR = Path("app/static")
 
 
 class AttachmentService():
@@ -200,6 +204,49 @@ class AttachmentService():
 
         except Exception:
             db.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Internal server error."
+            )
+        
+    
+    @staticmethod
+    def download_attachment_service(attachment_id: int, db: Session, current_user: User):
+        try:
+            attachment = AttachmentService.get_attachment_by_id(attachment_id, db)
+            # Task attachment
+            if attachment.task_id:
+                task = TaskService.get_task_by_id(attachment.task_id, db)
+                get_accessible_project(task.project_id, db, current_user)
+
+            # Comment attachment
+            elif attachment.comment_id:
+                comment = CommentService.get_comment_by_id(attachment.comment_id, db)
+                task = TaskService.get_task_by_id(comment.task_id, db)               
+                get_accessible_project(task.project_id, db, current_user)
+
+            else:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Attachment is not associated with a task or comment."
+                )
+            
+            
+            relative_path = attachment.file_url.replace("/static/", "")
+            file_path = STATIC_DIR / relative_path
+
+            if not file_path.exists():
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="File not found."
+                )
+
+            return file_path, attachment
+
+        except HTTPException:
+            raise
+
+        except Exception:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Internal server error."
