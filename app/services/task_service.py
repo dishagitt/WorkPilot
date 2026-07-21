@@ -7,6 +7,8 @@ from app.services.user_service import get_user_by_id
 from app.utils.membership import get_accessible_project, check_project_access
 from app.utils.key_num import generate_task_number
 import traceback
+from app.services.activity_service import ActivityService
+from app.database.models.enums import ActivityAction
 
 
 
@@ -44,6 +46,17 @@ class TaskService():
             )
 
             db.add(task)
+            db.flush()
+
+            ActivityService.create_activity(
+                db=db,
+                task_id=task.id,
+                user_id=current_user_id,
+                action=ActivityAction.TASK_CREATED,
+                old_value=None,
+                new_value=task.title
+            )
+
             db.commit()
             db.refresh(task)
             
@@ -153,30 +166,104 @@ class TaskService():
             task = TaskService.get_task_by_id(task_id, db)
 
             current_user = get_user_by_id(db, current_user_id)
+
             get_accessible_project(task.project_id, db, current_user)
 
             if task.created_by is not None:
                 created_by_user = get_user_by_id(db, task.created_by)
+         
             
             # update task
-            if data.task_type is not None:
+            if data.task_type is not None and data.task_type != task.task_type:
+                ActivityService.create_activity(
+                    db=db,
+                    task_id=task.id,
+                    user_id=current_user_id,
+                    action=ActivityAction.TASK_UPDATED,
+                    old_value=task.task_type.value,
+                    new_value=data.task_type.value
+                )
                 task.task_type = data.task_type
-            if data.title is not None:
+
+            if data.title is not None and data.title != task.title:
+                ActivityService.create_activity(
+                    db=db,
+                    task_id=task.id,
+                    user_id=current_user_id,
+                    action=ActivityAction.TASK_UPDATED,
+                    old_value=task.title,
+                    new_value=data.title
+                )
                 task.title = data.title
-            if data.description is not None:
+
+            if data.description is not None and data.description != task.description:
+                ActivityService.create_activity(
+                    db=db,
+                    task_id=task.id,
+                    user_id=current_user_id,
+                    action=ActivityAction.TASK_UPDATED,
+                    old_value=task.description,
+                    new_value=data.description
+                )
                 task.description = data.description
-            if data.phase is not None:
+
+            if data.phase is not None and data.phase != task.phase:
+                ActivityService.create_activity(
+                    db=db,
+                    task_id=task.id,
+                    user_id=current_user_id,
+                    action=ActivityAction.PHASE_CHANGED,
+                    old_value=task.phase.value,
+                    new_value=data.phase.value
+                )
                 task.phase = data.phase
-            if data.priority is not None:
+
+            if data.priority is not None and data.priority != task.priority:
+                ActivityService.create_activity(
+                    db=db,
+                    task_id=task.id,
+                    user_id=current_user_id,
+                    action=ActivityAction.PRIORITY_CHANGED,
+                    old_value=task.priority.value,
+                    new_value=data.priority.value
+                )
                 task.priority = data.priority
-            if data.due_date is not None:
+
+            if data.due_date is not None and data.due_date != task.due_date:
+                ActivityService.create_activity(
+                    db=db,
+                    task_id=task.id,
+                    user_id=current_user_id,
+                    action=ActivityAction.DUE_DATE_CHANGED,
+                    old_value=task.due_date.isoformat() if task.due_date else None,
+                    new_value=data.due_date.isoformat() if data.due_date else None
+                )
                 task.due_date = data.due_date
-            if data.assigned_to is not None:
-                get_user_by_id(db, data.assigned_to)
-                check_project_access(db, task.project_id, data.assigned_to)
+
+            if data.assigned_to is not None and data.assigned_to != task.assigned_to:
+                old_user = ( get_user_by_id(db, task.assigned_to) if task.assigned_to is not None else None ) 
+                if data.assigned_to == 0:
+                    # Unassign the task
+                    data.assigned_to = None
+                    new_name = None
+                else:
+                    # Assign to a valid user
+                    new_user = get_user_by_id(db, data.assigned_to)
+                    check_project_access(db, task.project_id, data.assigned_to)
+                    new_name = f"{new_user.first_name} {new_user.last_name}"
+
+                ActivityService.create_activity(
+                    db=db,
+                    task_id=task.id,
+                    user_id=current_user_id,
+                    action=ActivityAction.TASK_ASSIGNED,
+                    old_value=f"{old_user.first_name} {old_user.last_name}" if old_user else None,
+                    new_value=new_name
+                )
+
                 task.assigned_to = data.assigned_to
             
-            assigned_user = get_user_by_id(db, task.assigned_to)
+            assigned_user = (get_user_by_id(db, task.assigned_to) if task.assigned_to is not None else None)
 
             db.commit()
             db.refresh(task)
@@ -203,8 +290,8 @@ class TaskService():
 
         except Exception:
             db.rollback()
-            back.print_exc()
-            raisetrace
+            traceback.print_exc()
+            raise
         
     
 
@@ -222,6 +309,15 @@ class TaskService():
 
             # soft delete task 
             task.is_deleted = True
+
+            ActivityService.create_activity(
+                db=db,
+                task_id=task_id,
+                user_id=current_user_id,
+                action=ActivityAction.TASK_DELETED,
+                old_value=task.title,
+                new_value=None
+            )
 
             db.commit()            
 

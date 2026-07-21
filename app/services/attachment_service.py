@@ -9,6 +9,8 @@ from app.services.comment_service import CommentService
 from app.utils.file_handler import delete_file
 from app.database.models.user import User
 from pathlib import Path
+from app.services.activity_service import ActivityService
+from app.database.models.enums import ActivityAction
 
 STATIC_DIR = Path("app/static")
 
@@ -32,6 +34,16 @@ class AttachmentService():
             )    
 
             db.add(attachment)
+
+            ActivityService.create_activity(
+                db=db,
+                task_id=task.id,
+                user_id=current_user.id,
+                action=ActivityAction.TASK_ATTACHMENT_ADDED,
+                old_value=None,
+                new_value=attachment.file_name
+            )
+            
             db.commit()
             db.refresh(attachment)
             
@@ -120,6 +132,16 @@ class AttachmentService():
             )    
 
             db.add(attachment)
+
+            ActivityService.create_activity(
+                db=db,
+                task_id=task.id,
+                user_id=current_user.id,
+                action=ActivityAction.COMMENT_ATTACHMENT_ADDED,
+                old_value=None,
+                new_value=attachment.file_name
+            )
+
             db.commit()
             db.refresh(attachment)
             
@@ -180,8 +202,25 @@ class AttachmentService():
     @staticmethod
     def delete_attachment(attachment_id: int, db: Session, current_user_id: int):
         try:
-            # check task existence
+            # check attachment existence
             attachment = AttachmentService.get_attachment_by_id(attachment_id, db)
+
+            # check task/comment existence
+            if attachment.task_id:
+                task_id = attachment.task_id
+
+            elif attachment.comment_id:
+                comment = CommentService.get_comment_by_id(
+                    attachment.comment_id,
+                    db
+                )
+                task_id = comment.task_id
+
+            else:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Attachment is not associated with a task or comment."
+                )
 
             if attachment.uploaded_by != current_user_id:
                 raise HTTPException(
@@ -192,6 +231,15 @@ class AttachmentService():
             # hard delete attachment from static and database 
             delete_file(attachment.file_url)
             db.delete(attachment)
+
+            ActivityService.create_activity(
+                db=db,
+                task_id=task_id,
+                user_id=current_user_id,
+                action=ActivityAction.ATTACHMENT_REMOVED,
+                old_value=attachment.file_name,
+                new_value=None
+            )
 
             db.commit()            
 

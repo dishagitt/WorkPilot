@@ -48,16 +48,17 @@ def generate_task_number(db: Session, project_id: int) -> str:
             detail="Project not found"
         )
 
-    # Count existing active tasks in this project
-    task_count = (
+    last_task = (
         db.query(Task)
-        .filter(
-            Task.project_id == project_id,
-            Task.is_deleted == False
-        )
-        .count()
+        .filter(Task.project_id == project_id)
+        .order_by(Task.id.desc())
+        .first()
     )
 
-    next_number = task_count + 1
+    if not last_task:
+        next_number = 1
+    else:
+        current_number = int(last_task.task_number.split("-")[-1])
+        next_number = current_number + 1
 
     return f"{project.key}-{next_number}"

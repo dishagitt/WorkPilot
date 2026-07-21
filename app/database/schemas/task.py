@@ -1,8 +1,8 @@
 from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional
 from fastapi import Form
-from datetime import date as Date
-from app.database.models.enums import TaskPhase, TaskPriority, TaskType
+from datetime import date as Date, datetime
+from app.database.models.enums import TaskPhase, TaskPriority, TaskType, ActivityAction
 
 
 class TaskCreate(BaseModel):
@@ -95,3 +95,11 @@ class BoardListResponse(BaseModel):
     in_development: list[BoardResponse]
     in_qa: list[BoardResponse]
     done: list[BoardResponse]
+
+
+class ActivityResponse(BaseModel):
+    user: str
+    action: ActivityAction
+    old_value: Optional[str] = None
+    new_value: str
+    created_at: datetime

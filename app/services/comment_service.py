@@ -5,6 +5,8 @@ from app.database.schemas.comment import CommentCreate, CommentUpdate, CommentRe
 from app.services.user_service import get_user_by_id
 from app.utils.membership import get_accessible_project
 from app.services.task_service import TaskService
+from app.services.activity_service import ActivityService
+from app.database.models.enums import ActivityAction
 
 
 class CommentService():
@@ -25,6 +27,16 @@ class CommentService():
             )
 
             db.add(comment)
+
+            ActivityService.create_activity(
+                db=db,
+                task_id=task.id,
+                user_id=current_user.id,
+                action=ActivityAction.COMMENT_ADDED,
+                old_value=None,
+                new_value=comment.content
+            )
+
             db.commit()
             db.refresh(comment)
             
@@ -128,6 +140,8 @@ class CommentService():
                     status_code=403,
                     detail="You are not allowed to edit this comment."
                 )
+            
+            task = TaskService.get_task_by_id(comment.task_id, db)
 
             if comment.user_id is not None:
                 commenter  = get_user_by_id(db, comment.user_id)
@@ -135,6 +149,15 @@ class CommentService():
              # update comment
             if data.content is not None:
                 comment.content = data.content
+
+            ActivityService.create_activity(
+                db=db,
+                task_id=task.id,
+                user_id=commenter.id,
+                action=ActivityAction.COMMENT_UPDATED,
+                old_value=comment.content,
+                new_value=data.content
+            )
 
             db.commit()
             db.refresh(comment)

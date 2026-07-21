@@ -33,20 +33,32 @@ class TaskType(Enum):
 
 
 class ActivityAction(Enum):
+    # Task
     TASK_CREATED = "task_created"
     TASK_UPDATED = "task_updated"
-    TASK_ASSIGNED = "task_assigned"
     TASK_DELETED = "task_deleted"
 
+    # Assignment
+    TASK_ASSIGNED = "task_assigned"
+
+    # Phase
+    PHASE_CHANGED = "status_changed"
+
+    # Priority
+    PRIORITY_CHANGED = "priority_changed"
+
+    # Due Date
+    DUE_DATE_CHANGED = "due_date_changed"
+
+    # Comments
     COMMENT_ADDED = "comment_added"
     COMMENT_UPDATED = "comment_updated"
 
-    PHASE_CHANGED = "phase_changed"
-    PRIORITY_CHANGED = "priority_changed"
-    DUE_DATE_CHANGED = "due_date_changed"
+    # Task Attachments
+    TASK_ATTACHMENT_ADDED = "task_attachment_added"
+    COMMENT_ATTACHMENT_ADDED = "comment_attachment_added"
+    ATTACHMENT_REMOVED = "task_attachment_removed"
 
-    ATTACHMENT_ADDED = "attachment_added"
-    ATTACHMENT_REMOVED = "attachment_removed"
 
 
 class ProjectStatus(Enum):
